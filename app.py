@@ -27,17 +27,15 @@ async def generate_readme(request: CodeRequest):
     input_prompt = f"Generate a GitHub README for the following code:\n\n{code}"
     input_ids = tokenizer.encode(input_prompt, return_tensors='pt')
 
-    # Ensure input_ids do not exceed model's max length
     if input_ids.shape[1] > 1024:
         input_ids = input_ids[:, :1024]
 
-    # Attention mask
     attention_mask = torch.ones(input_ids.shape, dtype=torch.long)
 
     with torch.no_grad():
         outputs = model.generate(
             input_ids,
-            max_new_tokens=500,  # Adjust this based on your requirements
+            max_new_tokens=500, 
             num_return_sequences=1,
             attention_mask=attention_mask,
             pad_token_id=tokenizer.eos_token_id
