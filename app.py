@@ -1,8 +1,11 @@
-from fastapi import FastAPI
+"""
+This is the main file for the FastAPI server. It uses the OpenAI API to generate a README for a given code snippet.
+"""
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
-import torch
+from openai import OpenAI
 import uvicorn
 
 app = FastAPI()
@@ -10,42 +13,37 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["chrome-extension://moohkniklmopfcljgkmoleaaefblleci"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["POST"],
     allow_headers=["*"],
 )
 
-model_name = 'gpt2-medium'
-tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-model = GPT2LMHeadModel.from_pretrained(model_name)
+API_KEY = 'INPUT_YOUR_OPEN_AI_API_KEY'
+client = OpenAI(api_key=API_KEY)
+model_id = 'text-davincxi-003'
 
 class CodeRequest(BaseModel):
     code: str
 
 @app.post("/generate_readme")
 async def generate_readme(request: CodeRequest):
-    code = request.code
-    input_prompt = f"Generate a GitHub README for the following code:\n\n{code}"
-    input_ids = tokenizer.encode(input_prompt, return_tensors='pt')
+    code = request.code.strip()  
+    input_prompt = f"Generate a GitHub README for the following code:\n\n{code}\n\n"
 
-    if input_ids.shape[1] > 1024:
-        input_ids = input_ids[:, :1024]
-
-    attention_mask = torch.ones(input_ids.shape, dtype=torch.long)
-
-    with torch.no_grad():
-        outputs = model.generate(
-            input_ids,
-            max_new_tokens=500, 
-            num_return_sequences=1,
-            attention_mask=attention_mask,
-            pad_token_id=tokenizer.eos_token_id
+    try:
+        response = client.completions.create(
+            model=model_id, 
+            prompt=input_prompt,
+            max_tokens=500, # max length of the completion
         )
 
-    readme = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
-    print(readme)
-    return {"readme": readme}
+        readme = response.choices[0].text.strip()
+        print(readme)
+        return {"readme": readme}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5002)
+
 
 
