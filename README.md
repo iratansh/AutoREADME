@@ -1,8 +1,5 @@
 # AutoREADME
 
-### Code Summary and Technologies Used
-
-#### Code Summary:
 The provided code is a full-stack web application designed for a Google Chrome extension. It integrates a frontend implemented in HTML, CSS, and JavaScript with a backend powered by FastAPI. The application utilizes OpenAI's GPT-3.5 model to generate GitHub READMEs based on code snippets provided by users.
 
 1. **JavaScript (popup.js)**:
