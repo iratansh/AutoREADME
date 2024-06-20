@@ -8,7 +8,7 @@ The provided code is a full-stack web application designed for a Google Chrome e
    - Upon button click, retrieves the code entered in the textarea (`inputBox`), sends it as a POST request to `http://localhost:5002/generate_readme` (the FastAPI endpoint), and expects a JSON response containing the generated README.
    - Displays the generated README in the element with id `output`.
 
-2. **HTML (index.html)**:
+2. **HTML (popup.html)**:
    - Provides the structure for the README generator web application.
    - Includes a textarea (`inputBox`) for entering code snippets, a button (`generateButton`) to trigger README generation, and a div (`output`) to display the generated README.
    - Defines additional styling and references to external JavaScript (`popup.js`).
